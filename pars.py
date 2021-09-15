@@ -43,7 +43,7 @@ def dump_to_json(filename, data, **kwargs):
     kwargs.setdefault('indent', 1)
 
     if os.path.exists(FOLDER_NAME):
-        print("Папка уже существует!")
+        print("")
     else:
         os.mkdir(FOLDER_NAME)
 
@@ -94,7 +94,7 @@ def get_soup(res):
 
 def get_page_count(soup):
     """Пагинация страниц"""
-    pagination = soup.find_all('a', class_='custom-pagination__item')
+    pagination = soup.find_all('a', class_='pagination__item')
     if pagination:
         return int(pagination[-1].get_text())
     else:
@@ -112,14 +112,13 @@ def crawl_categories(URL):
         try:
             categoris_title = soup.find('h1', class_='shop-categories__title nc')
             categoris_title = categoris_title.text.strip()
-            all_categories_hrefs = soup.find_all('section', class_='shop-categories__item')
+            all_categories_hrefs = soup.find_all('section', class_='shop-category')
             for tag in all_categories_hrefs:
-                href = tag.find('div', class_='shop-categories__item-link')
-                href = href.find('a', class_='shop-categories__item-title nc')
+                href = tag.find('a', class_='shop-category__title link link--big link--inverted nc')
                 href = href.get('href')
                 url = '{}'.format(href)
                 cat_urls.append(url)
-            sleep(random.randrange(2, 4))
+            sleep(random.randrange(0, 3))
             print(f'\nВ категории "{categoris_title}" скопировано {len(cat_urls)} URLs адресов.')
 
             return cat_urls
@@ -161,11 +160,11 @@ def crawl_products(cat_urls):
                     break   # print('Нет в наличии')
                 else:
                     href = tag.find('div', class_='card__name')
-                    href = href.find('a', class_='custom-link custom-link--big custom-link--inverted custom-link--blue')
+                    href = href.find('a', class_='link link--big link--inverted link--blue')
                     href = href.get('href')
                     url = '{}'.format(href)
                     urls.append(url)
-        sleep(random.randrange(2, 4))
+        sleep(random.randrange(0, 3))
 
         print(f'\nВсего URLs с товаром - {len(urls)} скопировано\n')
 
@@ -205,11 +204,11 @@ def crawl_products(cat_urls):
                         break   # print('Нет в наличии')
                     else:
                         href = tag.find('div', class_='card__name')
-                        href = href.find('a', class_='custom-link custom-link--big custom-link--inverted custom-link--blue')
+                        href = href.find('a', class_='link link--big link--inverted link--blue')
                         href = href.get('href')
                         url = '{}'.format(href)
                         urls.append(url)
-            sleep(random.randrange(2, 4))
+            sleep(random.randrange(0, 3))
 
         print(f'\nВсего URLs с товаром - {len(urls)} скопировано\n')
 
@@ -234,7 +233,8 @@ def parse_products(urls):
             brend = ''
 
         try:
-            art = soup.find('div', class_='p-block__code nc')
+            art = soup.find('div', class_='p-block__sticky')
+            art = art.find('div', class_='nc p-block__code')
             art = art.text.strip().replace('КОД ', '').replace('КОД', '')
         except Exception:
             art = ''
@@ -277,7 +277,7 @@ def parse_products(urls):
         except Exception:
             stock = ''
 
-        sleep(random.randrange(2, 4))
+        sleep(random.randrange(0, 3))
 
         count += 1
         iteration_count = iteration_count - 1
@@ -294,7 +294,7 @@ def parse_products(urls):
             'stock': stock
         })
 
-    sleep(random.randrange(2, 4))
+    sleep(random.randrange(0, 3))
 
     return data
 
