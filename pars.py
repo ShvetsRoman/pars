@@ -10,9 +10,9 @@ import datetime
 
 
 HEADERS = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0'
-        }
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0',
+}
 
 COOKIES = {'Cookie': ' LANG=ua; store-id=26; '}
 
@@ -111,17 +111,21 @@ def crawl_categories(URL):
     categories_yes_no = soup.find('div', class_='shop-categories')
     if categories_yes_no:
         try:
-            categories_title = soup.find('h1', class_='shop-categories__title nc')
+            categories_title = soup.find(
+                'h1', class_='shop-categories__title nc')
             categories_title = categories_title.text.strip()
-            all_categories_hrefs = soup.find_all('section', class_='shop-category')
+            all_categories_hrefs = soup.find_all(
+                'section', class_='shop-category')
             for tag in all_categories_hrefs:
-                href = tag.find('a', class_='shop-category__title link link--big link--inverted nc')
+                href = tag.find(
+                    'a', class_='shop-category__title link link--big link--inverted nc')
                 href = href.get('href')
                 url = '{}'.format(href)
                 categories_urls.append(url)
 #                print(url)
 #            sleep(random.randrange(0, 1))
-            print(f'\nВ категории "{categories_title}" скопировано {len(categories_urls)} URLs адресов.')
+            print(
+                f'\nВ категории "{categories_title}" скопировано {len(categories_urls)} URLs адресов.')
 
             return categories_urls
 
@@ -148,16 +152,20 @@ def crawl_products(categories_urls):
         for page_n in range(1, 1 + pages_count):
             res = get_req(categories_urls, params={'PAGEN_1': page_n})
             soup = get_soup(res)
-            all_products_hrefs = soup.find_all('div', class_='columns product-Wrap card-wrapper')
-            print(f'\tСтраница {page_n} из {pages_count}...  - {len(all_products_hrefs)} URLs')
+            all_products_hrefs = soup.find_all(
+                'div', class_='columns product-Wrap card-wrapper')
+            print(
+                f'\tСтраница {page_n} из {pages_count}...  - {len(all_products_hrefs)} URLs')
             for product_href in all_products_hrefs:
                 price_yes_no = product_href.find('div', class_='card__price')
-                price_yes_no = price_yes_no.find('span', class_='card__price-sum')
+                price_yes_no = price_yes_no.find(
+                    'span', class_='card__price-sum')
                 if price_yes_no is None:
                     break   # print('Нет в наличии')
                 else:
                     href = product_href.find('div', class_='card__name')
-                    href = href.find('a', class_='link link--big link--inverted link--blue')
+                    href = href.find(
+                        'a', class_='link link--big link--inverted link--blue')
                     href = href.get('href')
                     url = '{}'.format(href)
                     products_urls.append(url)
@@ -177,22 +185,28 @@ def crawl_products(categories_urls):
             soup = get_soup(res)
             pages_count = get_page_count(soup)
             group_cat = soup.find('h1', class_='nc').text.strip()
-            print(f'\nКатегория: URL - {pages_count_categories_urls} из {len(categories_urls)}...')
+            print(
+                f'\nКатегория: URL - {pages_count_categories_urls} из {len(categories_urls)}...')
             pages_count_categories_urls += 1
             print(f'\tВ группе "{group_cat}" - {pages_count}страниц')
             for page_n in range(1, 1 + pages_count):
                 res = get_req(categorie_url, params={'PAGEN_1': page_n})
                 soup = get_soup(res)
-                all_products_hrefs = soup.find_all('div', class_='columns product-Wrap card-wrapper')
-                print(f'\tСтраница {page_n} из {pages_count}...  - {len(all_products_hrefs)} URLs')
+                all_products_hrefs = soup.find_all(
+                    'div', class_='columns product-Wrap card-wrapper')
+                print(
+                    f'\tСтраница {page_n} из {pages_count}...  - {len(all_products_hrefs)} URLs')
                 for product_href in all_products_hrefs:
-                    price_yes_no = product_href.find('div', class_='card__price')
-                    price_yes_no = price_yes_no.find('span', class_='card__price-sum')
+                    price_yes_no = product_href.find(
+                        'div', class_='card__price')
+                    price_yes_no = price_yes_no.find(
+                        'span', class_='card__price-sum')
                     if price_yes_no is None:
                         break   # print('Нет в наличии')
                     else:
                         href = product_href.find('div', class_='card__name')
-                        href = href.find('a', class_='link link--big link--inverted link--blue')
+                        href = href.find(
+                            'a', class_='link link--big link--inverted link--blue')
                         href = href.get('href')
                         url = '{}'.format(href)
                         products_urls.append(url)
@@ -221,13 +235,16 @@ def parse_products(products_urls):
             art = soup.find('div', class_='p-block__row p-block__row--status')
             art = art.prettify()    # возвращает строку Unicode, а не байтовую строку
             art = " ".join(re.split('["]+', art))   # Удаление символа "
-            art = re.findall(r"articul :  (\d+)", art, flags=re.MULTILINE | re.DOTALL)      # Поиск арт.
+            # Поиск арт.
+            art = re.findall(r"articul :  (\d+)", art,
+                             flags=re.MULTILINE | re.DOTALL)
             art = int(''.join(art))     # Преобразование list в int
         except Exception:
             art = ''
 
         try:
-            name = soup.find('header', class_='p-block p-block--header p-header')
+            name = soup.find(
+                'header', class_='p-block p-block--header p-header')
             name = name.find('h1', class_='p-header__title nc')
             name = name.text.strip()
         except Exception:
@@ -267,7 +284,8 @@ def parse_products(products_urls):
 
         count += 1
         iteration_count = iteration_count - 1
-        print(f"Итерация #{count} завершена, осталось итераций #{iteration_count}")
+        print(
+            f"Итерация #{count} завершена, осталось итераций #{iteration_count}")
         if iteration_count == 0:
             print("\nСбор данных завершен !\n")
 
@@ -279,9 +297,7 @@ def parse_products(products_urls):
             'price_old': price_old,
             'stock': stock
         })
-
 #    sleep(random.randrange(0, 1))
-
     return data
 
 
